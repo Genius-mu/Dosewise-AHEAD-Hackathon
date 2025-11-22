@@ -20,6 +20,7 @@ import {
   SelectValue,
 } from "./ui/select";
 import { Textarea } from "./ui/textarea";
+import { storeToken } from "./api/api";
 import axios from "axios";
 import logo from "figma:asset/eb6d15466f76858f9aa3d9535154b129bc9f0c63.png";
 
@@ -56,6 +57,110 @@ export default function PatientOnboarding({
   const [uploadedFiles, setUploadedFiles] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
 
+  // const handleNext = async () => {
+  //   if (step === 1) {
+  //     setStep(2);
+  //   } else {
+  //     setLoading(true);
+  //     try {
+  //       const res = await axios.post(
+  //         "https://dosewise-2p1n.onrender.com/api/auth/patient/register",
+  //         {
+  //           name: formData.name,
+  //           email: formData.email,
+  //           password: formData.password,
+  //           dob: formData.dob,
+  //           gender:
+  //             formData.gender.charAt(0).toUpperCase() +
+  //             formData.gender.slice(1),
+  //           phone: `${formData.countryCode}${formData.phone.replace(
+  //             /\D/g,
+  //             ""
+  //           )}`,
+  //           address: formData.address,
+  //           allergies: formData.allergies
+  //             ? formData.allergies.split(",").map((a) => a.trim())
+  //             : [],
+  //         },
+  //         {
+  //           headers: {
+  //             "Content-Type": "application/json",
+  //             Authorization: `Bearer ${import.meta.env.VITE_MEDICAL_API_KEY}`,
+  //           },
+  //         }
+  //       );
+
+  //       const token = res.data.data.token; // <-- extract token
+  //       localStorage.setItem("patientToken", token); // <-- store token
+  //       console.log("Patient created, token:", token);
+
+  //       onComplete(formData);
+  //     } catch (err: any) {
+  //       console.error("Error creating patient:", err.response || err.message);
+  //       alert("Failed to create patient. Check console for details.");
+  //     } finally {
+  //       setLoading(false);
+  //     }
+  //   }
+  // };
+
+  // In PatientOnboarding, update the handleNext function:
+  // const handleNext = async () => {
+  //   if (step === 1) {
+  //     setStep(2);
+  //   } else {
+  //     setLoading(true);
+  //     try {
+  //       const res = await axios.post(
+  //         "https://dosewise-2p1n.onrender.com/api/auth/patient/register",
+  //         {
+  //           name: formData.name,
+  //           email: formData.email,
+  //           password: formData.password,
+  //           dob: formData.dob,
+  //           gender:
+  //             formData.gender.charAt(0).toUpperCase() +
+  //             formData.gender.slice(1),
+  //           phone: `${formData.countryCode}${formData.phone.replace(
+  //             /\D/g,
+  //             ""
+  //           )}`,
+  //           address: formData.address,
+  //           allergies: formData.allergies
+  //             ? formData.allergies.split(",").map((a) => a.trim())
+  //             : [],
+  //         },
+  //         {
+  //           headers: {
+  //             "Content-Type": "application/json",
+  //           },
+  //         }
+  //       );
+
+  //       const token = res.data.data.token;
+
+  //       // Store token using our helper function
+  //       storeToken(token, "patient");
+
+  //       // Also store in localStorage
+  //       localStorage.setItem("patientToken", token);
+
+  //       console.log("Patient created, token stored:", token);
+
+  //       // Pass the token to onComplete
+  //       onComplete({
+  //         ...formData,
+  //         token: token,
+  //       });
+  //     } catch (err: any) {
+  //       console.error("Error creating patient:", err.response || err.message);
+  //       alert("Failed to create patient. Check console for details.");
+  //     } finally {
+  //       setLoading(false);
+  //     }
+  //   }
+  // };
+
   const handleNext = async () => {
     if (step === 1) {
       setStep(2);
@@ -84,16 +189,22 @@ export default function PatientOnboarding({
           {
             headers: {
               "Content-Type": "application/json",
-              Authorization: `Bearer ${import.meta.env.VITE_MEDICAL_API_KEY}`,
             },
           }
         );
 
-        const token = res.data.data.token; // <-- extract token
-        localStorage.setItem("patientToken", token); // <-- store token
-        console.log("Patient created, token:", token);
+        const token = res.data.data.token;
 
-        onComplete(formData);
+        // Use the imported storeToken function
+        storeToken(token, "patient");
+
+        console.log("Patient created, token stored:", token);
+
+        // Pass the token to onComplete
+        onComplete({
+          ...formData,
+          token: token,
+        });
       } catch (err: any) {
         console.error("Error creating patient:", err.response || err.message);
         alert("Failed to create patient. Check console for details.");

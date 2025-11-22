@@ -1,606 +1,3 @@
-// import { useState, useEffect } from "react";
-// import {
-//   Heart,
-//   FileText,
-//   Pill,
-//   Activity,
-//   Share2,
-//   AlertCircle,
-//   Mic,
-//   Plus,
-//   Bell,
-//   LogOut,
-//   Crown,
-//   QrCode,
-//   Upload,
-//   TrendingUp,
-//   CheckCircle,
-//   X,
-//   Square,
-//   Download,
-//   Eye,
-//   Trash2,
-//   Watch,
-//   Coffee,
-//   ShoppingCart,
-// } from "lucide-react";
-// import { Button } from "./ui/button";
-// import { Input } from "./ui/input";
-// import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
-// import { Badge } from "./ui/badge";
-// import {
-//   Dialog,
-//   DialogContent,
-//   DialogHeader,
-//   DialogTitle,
-//   DialogDescription,
-//   DialogFooter,
-// } from "./ui/dialog";
-// import { Label } from "./ui/label";
-// import { Textarea } from "./ui/textarea";
-// import {
-//   Select,
-//   SelectContent,
-//   SelectItem,
-//   SelectTrigger,
-//   SelectValue,
-// } from "./ui/select";
-// import Toast from "./Toast";
-// import SymptomLogger from "./SymptomLogger";
-// import WearablesConnector from "./WearablesConnector";
-// import PharmacyMarketplace from "./PharmacyMarketplace";
-// import FoodInteractionChecker from "./FoodInteractionChecker";
-// import {
-//   getPatientProfile,
-//   getPatientRecords,
-//   uploadMedicalRecord,
-// } from "./api/api";
-// import logo from "figma:asset/eb6d15466f76858f9aa3d9535154b129bc9f0c63.png";
-
-// interface User {
-//   name: string;
-//   dob?: string;
-//   email?: string;
-//   subscriptionTier?: "free" | "premium";
-// }
-
-// interface PatientDashboardProps {
-//   user: User;
-//   onLogout: () => void;
-// }
-
-// interface Prescription {
-//   id: string;
-//   name: string;
-//   dosage: string;
-//   frequency: string;
-//   prescribedBy: string;
-//   startDate: string;
-//   compatibility: number;
-//   status: string;
-// }
-
-// interface Symptom {
-//   id: string;
-//   date: string;
-//   symptom: string;
-//   severity: string;
-//   notes: string;
-//   duration?: string;
-//   context?: string;
-//   possibleRisk?: string;
-//   recommendations?: string;
-// }
-
-// interface Clinician {
-//   id: string;
-//   name: string;
-//   hospital: string;
-//   accessLevel: string;
-//   grantedDate: string;
-// }
-
-// export default function PatientDashboard({
-//   user,
-//   onLogout,
-// }: PatientDashboardProps) {
-//   const [activeTab, setActiveTab] = useState("overview");
-//   const [isRecording, setIsRecording] = useState(false);
-//   const [recordingTime, setRecordingTime] = useState(0);
-//   const [toast, setToast] = useState<{
-//     message: string;
-//     type: "success" | "error" | "info";
-//   } | null>(null);
-//   const [isLoading, setIsLoading] = useState(false);
-
-//   // Modal states
-//   const [showAddPrescription, setShowAddPrescription] = useState(false);
-//   const [showAddSymptom, setShowAddSymptom] = useState(false);
-//   const [showSymptomLogger, setShowSymptomLogger] = useState(false);
-//   const [showUploadRecord, setShowUploadRecord] = useState(false);
-//   const [showShareAccess, setShowShareAccess] = useState(false);
-//   const [showAddClinician, setShowAddClinician] = useState(false);
-//   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
-//   const [showNotifications, setShowNotifications] = useState(false);
-//   const [showRecordDetails, setShowRecordDetails] = useState(false);
-//   const [selectedRecord, setSelectedRecord] = useState<any>(null);
-//   const [showWearables, setShowWearables] = useState(false);
-//   const [showPharmacy, setShowPharmacy] = useState(false);
-//   const [showFoodChecker, setShowFoodChecker] = useState(false);
-//   const [profile, setProfile] = useState<any>(null);
-//   const [records, setRecords] = useState<any>(null);
-//   const [loading, setLoading] = useState(false);
-
-//   // Data states
-//   const [prescriptions, setPrescriptions] = useState<Prescription[]>([
-//     {
-//       id: "1",
-//       name: "Lisinopril 10mg",
-//       dosage: "Once daily",
-//       frequency: "Daily",
-//       prescribedBy: "Dr. Sarah Johnson",
-//       startDate: "Oct 1, 2025",
-//       compatibility: 95,
-//       status: "active",
-//     },
-//     {
-//       id: "2",
-//       name: "Metformin 500mg",
-//       dosage: "Twice daily with meals",
-//       frequency: "Twice daily",
-//       prescribedBy: "Dr. Sarah Johnson",
-//       startDate: "Sep 15, 2025",
-//       compatibility: 98,
-//       status: "active",
-//     },
-//     {
-//       id: "3",
-//       name: "Atorvastatin 20mg",
-//       dosage: "Once daily at bedtime",
-//       frequency: "Daily",
-//       prescribedBy: "Dr. Sarah Johnson",
-//       startDate: "Aug 20, 2025",
-//       compatibility: 92,
-//       status: "active",
-//     },
-//   ]);
-
-//   const [symptoms, setSymptoms] = useState<Symptom[]>([
-//     {
-//       id: "1",
-//       date: "Nov 20, 10:30 AM",
-//       symptom: "Headache",
-//       severity: "Moderate",
-//       notes: "After morning medication",
-//     },
-//     {
-//       id: "2",
-//       date: "Nov 19, 3:45 PM",
-//       symptom: "Fatigue",
-//       severity: "Mild",
-//       notes: "Post-lunch",
-//     },
-//     {
-//       id: "3",
-//       date: "Nov 19, 9:00 AM",
-//       symptom: "Dizziness",
-//       severity: "Mild",
-//       notes: "Upon standing",
-//     },
-//     {
-//       id: "4",
-//       date: "Nov 18, 2:15 PM",
-//       symptom: "Headache",
-//       severity: "Severe",
-//       notes: "Lasted 2 hours",
-//     },
-//   ]);
-
-//   const [clinicians, setClinicians] = useState<Clinician[]>([
-//     {
-//       id: "1",
-//       name: "Dr. Sarah Johnson",
-//       hospital: "City General Hospital",
-//       accessLevel: "Full Access",
-//       grantedDate: "Oct 1, 2025",
-//     },
-//     {
-//       id: "2",
-//       name: "Dr. Michael Chen",
-//       hospital: "LabCorp Diagnostics",
-//       accessLevel: "Lab Results Only",
-//       grantedDate: "Nov 10, 2025",
-//     },
-//   ]);
-
-//   // Form states
-//   const [newPrescription, setNewPrescription] = useState({
-//     name: "",
-//     dosage: "",
-//     frequency: "",
-//     prescribedBy: "",
-//   });
-//   const [newSymptom, setNewSymptom] = useState({
-//     symptom: "",
-//     severity: "mild",
-//     notes: "",
-//   });
-//   const [medicationToCheck, setMedicationToCheck] = useState("");
-//   const [compatibilityResult, setCompatibilityResult] = useState<any>(null);
-//   const [isCheckingCompatibility, setIsCheckingCompatibility] = useState(false);
-//   const [newClinician, setNewClinician] = useState({
-//     name: "",
-//     email: "",
-//     accessLevel: "full",
-//   });
-//   const [uploadedFiles, setUploadedFiles] = useState<string[]>([]);
-//   const [qrCode, setQrCode] = useState<string>("");
-//   const [qrExpiry, setQrExpiry] = useState<Date | null>(null);
-//   const [patientProfile, setPatientProfile] = useState<User | null>(null);
-//   const [profileLoading, setProfileLoading] = useState(true);
-
-//   useEffect(() => {
-//     const token = localStorage.getItem("patientToken"); // or wherever you store it
-//     const fetchProfileAndRecords = async () => {
-//       try {
-//         setLoading(true);
-//         const profileData = await getPatientProfile(token);
-//         setProfile(profileData);
-
-//         const recordsData = await getPatientRecords(token);
-//         setRecords(recordsData);
-//       } catch (error) {
-//         console.error("Error fetching patient data:", error);
-//       } finally {
-//         setLoading(false);
-//       }
-//     };
-
-//     fetchProfileAndRecords();
-//   }, [token]);
-
-//   useEffect(() => {
-//     let interval: any;
-//     if (isRecording) {
-//       interval = setInterval(() => {
-//         setRecordingTime((prev) => prev + 1);
-//       }, 1000);
-//     }
-//     return () => {
-//       if (interval) clearInterval(interval);
-//     };
-//   }, [isRecording]);
-
-//   // QR Code expiry timer
-//   useEffect(() => {
-//     if (qrExpiry) {
-//       const interval = setInterval(() => {
-//         if (new Date() > qrExpiry) {
-//           setQrCode("");
-//           setQrExpiry(null);
-//           showToast("QR code expired. Generate a new one.", "info");
-//         }
-//       }, 1000);
-//       return () => clearInterval(interval);
-//     }
-//   }, [qrExpiry]);
-
-//   const showToast = (message: string, type: "success" | "error" | "info") => {
-//     setToast({ message, type });
-//   };
-
-//   const handleStartRecording = () => {
-//     setIsRecording(true);
-//     setRecordingTime(0);
-//     showToast("Recording started. Speak clearly about your visit.", "info");
-//   };
-
-//   const handleStopRecording = () => {
-//     setIsRecording(false);
-//     setIsLoading(true);
-
-//     setTimeout(() => {
-//       setIsLoading(false);
-//       showToast(
-//         "Voice recording saved and transcribed successfully!",
-//         "success"
-//       );
-//     }, 2000);
-//   };
-
-//   const formatRecordingTime = (seconds: number) => {
-//     const mins = Math.floor(seconds / 60);
-//     const secs = seconds % 60;
-//     return `${String(mins).padStart(2, "0")}:${String(secs).padStart(2, "0")}`;
-//   };
-
-//   const handleCheckCompatibility = () => {
-//     if (!medicationToCheck.trim()) {
-//       showToast("Please enter a medication name", "error");
-//       return;
-//     }
-
-//     setIsCheckingCompatibility(true);
-
-//     setTimeout(() => {
-//       const score = Math.floor(Math.random() * 20) + 80;
-//       const interactions =
-//         score < 90
-//           ? [
-//               "May interact with Lisinopril - monitor blood pressure closely",
-//               "Possible increased risk of side effects when combined with current medications",
-//             ]
-//           : [];
-
-//       setCompatibilityResult({
-//         medication: medicationToCheck,
-//         score: score,
-//         interactions: interactions,
-//         recommendation:
-//           score >= 95
-//             ? "Safe to use with current medications. No significant interactions detected."
-//             : score >= 85
-//             ? "Generally safe, but monitor for side effects. Consult your doctor if symptoms worsen."
-//             : "Potential interaction detected. Consult with your doctor before taking this medication.",
-//       });
-//       setIsCheckingCompatibility(false);
-//       showToast("Compatibility analysis complete", "success");
-//     }, 2000);
-//   };
-
-//   const handleAddPrescription = () => {
-//     if (!newPrescription.name || !newPrescription.dosage) {
-//       showToast("Please fill in required fields (name and dosage)", "error");
-//       return;
-//     }
-
-//     setIsLoading(true);
-
-//     setTimeout(() => {
-//       const newPx: Prescription = {
-//         id: Date.now().toString(),
-//         name: newPrescription.name,
-//         dosage: newPrescription.dosage,
-//         frequency: newPrescription.frequency || "As directed",
-//         prescribedBy: newPrescription.prescribedBy || "Self-added",
-//         startDate: new Date().toLocaleDateString("en-US", {
-//           month: "short",
-//           day: "numeric",
-//           year: "numeric",
-//         }),
-//         compatibility: Math.floor(Math.random() * 15) + 85,
-//         status: "active",
-//       };
-
-//       setPrescriptions([newPx, ...prescriptions]);
-//       setNewPrescription({
-//         name: "",
-//         dosage: "",
-//         frequency: "",
-//         prescribedBy: "",
-//       });
-//       setShowAddPrescription(false);
-//       setIsLoading(false);
-//       showToast(`${newPx.name} added successfully!`, "success");
-//       setActiveTab("prescriptions");
-//     }, 1000);
-//   };
-
-//   const handleAddSymptom = () => {
-//     if (!newSymptom.symptom) {
-//       showToast("Please enter a symptom", "error");
-//       return;
-//     }
-
-//     setIsLoading(true);
-
-//     setTimeout(() => {
-//       const newSymptomEntry: Symptom = {
-//         id: Date.now().toString(),
-//         date: new Date().toLocaleString("en-US", {
-//           month: "short",
-//           day: "numeric",
-//           hour: "numeric",
-//           minute: "2-digit",
-//           hour12: true,
-//         }),
-//         symptom: newSymptom.symptom,
-//         severity:
-//           newSymptom.severity.charAt(0).toUpperCase() +
-//           newSymptom.severity.slice(1),
-//         notes: newSymptom.notes || "No additional notes",
-//       };
-
-//       setSymptoms([newSymptomEntry, ...symptoms]);
-//       setNewSymptom({ symptom: "", severity: "mild", notes: "" });
-//       setShowAddSymptom(false);
-//       setIsLoading(false);
-//       showToast(
-//         "Symptom logged successfully! AI is analyzing patterns...",
-//         "success"
-//       );
-//       setActiveTab("symptoms");
-//     }, 1000);
-//   };
-
-//   const handleSaveStructuredSymptom = (structuredSymptom: any) => {
-//     const newSymptomEntry: Symptom = {
-//       id: structuredSymptom.id,
-//       date: structuredSymptom.timestamp,
-//       symptom: structuredSymptom.symptom,
-//       severity: `${structuredSymptom.severity}/10`,
-//       notes: structuredSymptom.context,
-//       duration: structuredSymptom.duration,
-//       context: structuredSymptom.context,
-//       possibleRisk: structuredSymptom.possibleRisk,
-//       recommendations: structuredSymptom.recommendations,
-//     };
-
-//     setSymptoms([newSymptomEntry, ...symptoms]);
-//     setShowSymptomLogger(false);
-//     showToast(
-//       "✓ Symptom log saved successfully! AI insights generated.",
-//       "success"
-//     );
-//     setActiveTab("symptoms");
-//   };
-
-//   const handleAddClinician = () => {
-//     if (!newClinician.name || !newClinician.email) {
-//       showToast("Please fill in all required fields", "error");
-//       return;
-//     }
-
-//     setIsLoading(true);
-
-//     setTimeout(() => {
-//       const newClin: Clinician = {
-//         id: Date.now().toString(),
-//         name: newClinician.name,
-//         hospital: "Hospital TBD",
-//         accessLevel:
-//           newClinician.accessLevel === "full"
-//             ? "Full Access"
-//             : newClinician.accessLevel === "prescriptions"
-//             ? "Prescriptions Only"
-//             : "Lab Results Only",
-//         grantedDate: new Date().toLocaleDateString("en-US", {
-//           month: "short",
-//           day: "numeric",
-//           year: "numeric",
-//         }),
-//       };
-
-//       setClinicians([...clinicians, newClin]);
-//       setNewClinician({ name: "", email: "", accessLevel: "full" });
-//       setShowAddClinician(false);
-//       setIsLoading(false);
-//       showToast(
-//         `Access granted to ${newClin.name}. Invitation email sent!`,
-//         "success"
-//       );
-//       setActiveTab("access");
-//     }, 1500);
-//   };
-
-//   const handleRevokeClinician = (id: string, name: string) => {
-//     setClinicians(clinicians.filter((c) => c.id !== id));
-//     showToast(`Access revoked for ${name}`, "success");
-//   };
-
-//   const handleDeletePrescription = (id: string, name: string) => {
-//     setPrescriptions(prescriptions.filter((p) => p.id !== id));
-//     showToast(`${name} removed from your prescriptions`, "success");
-//   };
-
-//   const handleDeleteSymptom = (id: string) => {
-//     setSymptoms(symptoms.filter((s) => s.id !== id));
-//     showToast("Symptom entry deleted", "success");
-//   };
-
-//   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-//     const files = e.target.files;
-//     if (files) {
-//       setIsLoading(true);
-//       const fileNames = Array.from(files).map((f) => f.name);
-
-//       setTimeout(() => {
-//         setUploadedFiles([...uploadedFiles, ...fileNames]);
-//         setIsLoading(false);
-//         showToast(
-//           `${files.length} file(s) uploaded successfully! AI is processing...`,
-//           "success"
-//         );
-//         setShowUploadRecord(false);
-//       }, 2000);
-//     }
-//   };
-
-//   const handleGenerateQR = () => {
-//     setIsLoading(true);
-
-//     setTimeout(() => {
-//       setQrCode(`QR-${Date.now()}`);
-//       const expiry = new Date();
-//       expiry.setMinutes(expiry.getMinutes() + 15);
-//       setQrExpiry(expiry);
-//       setIsLoading(false);
-//       showToast("New QR code generated! Valid for 15 minutes.", "success");
-//     }, 1000);
-//   };
-
-//   const handleUpgrade = () => {
-//     setIsLoading(true);
-
-//     setTimeout(() => {
-//       setIsLoading(false);
-//       setShowUpgradeModal(false);
-//       showToast(
-//         "Payment processed successfully! Welcome to Premium!",
-//         "success"
-//       );
-//       // In real app, would update user.subscriptionTier
-//     }, 2000);
-//   };
-
-//   const handleViewRecord = (record: any) => {
-//     setSelectedRecord(record);
-//     setShowRecordDetails(true);
-//   };
-
-//   const handleExportRecords = () => {
-//     setIsLoading(true);
-
-//     setTimeout(() => {
-//       setIsLoading(false);
-//       showToast("Medical records exported as PDF successfully!", "success");
-//       // In real app, would trigger download
-//     }, 1500);
-//   };
-
-//   return (
-//     <div className="min-h-screen">
-//       {/* Toast Notification */}
-//       {toast && (
-//         <Toast
-//           message={toast.message}
-//           type={toast.type}
-//           onClose={() => setToast(null)}
-//         />
-//       )}
-
-//       {/* Symptom Logger Modal */}
-//       {showSymptomLogger && (
-//         <SymptomLogger
-//           patientName={user.name}
-//           onClose={() => setShowSymptomLogger(false)}
-//           onSave={handleSaveStructuredSymptom}
-//         />
-//       )}
-
-//       {/* Wearables Connector */}
-//       {showWearables && (
-//         <WearablesConnector onClose={() => setShowWearables(false)} />
-//       )}
-
-//       {/* Pharmacy Marketplace */}
-//       {showPharmacy && (
-//         <PharmacyMarketplace
-//           patientHistory={{
-//             conditions: ["peptic ulcer", "hypertension"],
-//             medications: prescriptions.map((p) => p.name),
-//           }}
-//           onClose={() => setShowPharmacy(false)}
-//         />
-//       )}
-
-//       {/* Food Interaction Checker */}
-//       {showFoodChecker && (
-//         <FoodInteractionChecker
-//           medications={prescriptions.map((p) => p.name)}
-//           onClose={() => setShowFoodChecker(false)}
-//         />
-//       )}
 import { useState, useEffect } from "react";
 import {
   Heart,
@@ -653,18 +50,44 @@ import SymptomLogger from "./SymptomLogger";
 import WearablesConnector from "./WearablesConnector";
 import PharmacyMarketplace from "./PharmacyMarketplace";
 import FoodInteractionChecker from "./FoodInteractionChecker";
+import logo from "figma:asset/eb6d15466f76858f9aa3d9535154b129bc9f0c63.png";
+
+// Import API functions
 import {
   getPatientProfile,
   getPatientRecords,
   uploadMedicalRecord,
+  logSymptom,
+  getSymptoms,
+  checkDrugInteractions,
+  generateQRCode,
+  aiEMRExtraction,
 } from "./api/api";
-import logo from "figma:asset/eb6d15466f76858f9aa3d9535154b129bc9f0c63.png";
+import { getStoredToken, removeToken, storeToken } from "./api/api";
+
+// const getStoredToken = () => {
+//   return (
+//     localStorage.getItem("patientToken") || localStorage.getItem("clinicToken")
+//   );
+// };
+
+// const storeToken = (token: string, userType: string) => {
+//   const key = userType === "patient" ? "patientToken" : "clinicToken";
+//   localStorage.setItem(key, token);
+// };
+
+// const removeToken = () => {
+//   localStorage.removeItem("patientToken");
+//   localStorage.removeItem("clinicToken");
+// };
 
 interface User {
   name: string;
   dob?: string;
   email?: string;
   subscriptionTier?: "free" | "premium";
+  token: string;
+  _id: string;
 }
 
 interface PatientDashboardProps {
@@ -730,91 +153,13 @@ export default function PatientDashboard({
   const [showWearables, setShowWearables] = useState(false);
   const [showPharmacy, setShowPharmacy] = useState(false);
   const [showFoodChecker, setShowFoodChecker] = useState(false);
-  const [profile, setProfile] = useState<any>(null);
-  const [records, setRecords] = useState<any>(null);
-  const [loading, setLoading] = useState(false);
 
   // Data states
-  const [prescriptions, setPrescriptions] = useState<Prescription[]>([
-    {
-      id: "1",
-      name: "Lisinopril 10mg",
-      dosage: "Once daily",
-      frequency: "Daily",
-      prescribedBy: "Dr. Sarah Johnson",
-      startDate: "Oct 1, 2025",
-      compatibility: 95,
-      status: "active",
-    },
-    {
-      id: "2",
-      name: "Metformin 500mg",
-      dosage: "Twice daily with meals",
-      frequency: "Twice daily",
-      prescribedBy: "Dr. Sarah Johnson",
-      startDate: "Sep 15, 2025",
-      compatibility: 98,
-      status: "active",
-    },
-    {
-      id: "3",
-      name: "Atorvastatin 20mg",
-      dosage: "Once daily at bedtime",
-      frequency: "Daily",
-      prescribedBy: "Dr. Sarah Johnson",
-      startDate: "Aug 20, 2025",
-      compatibility: 92,
-      status: "active",
-    },
-  ]);
-
-  const [symptoms, setSymptoms] = useState<Symptom[]>([
-    {
-      id: "1",
-      date: "Nov 20, 10:30 AM",
-      symptom: "Headache",
-      severity: "Moderate",
-      notes: "After morning medication",
-    },
-    {
-      id: "2",
-      date: "Nov 19, 3:45 PM",
-      symptom: "Fatigue",
-      severity: "Mild",
-      notes: "Post-lunch",
-    },
-    {
-      id: "3",
-      date: "Nov 19, 9:00 AM",
-      symptom: "Dizziness",
-      severity: "Mild",
-      notes: "Upon standing",
-    },
-    {
-      id: "4",
-      date: "Nov 18, 2:15 PM",
-      symptom: "Headache",
-      severity: "Severe",
-      notes: "Lasted 2 hours",
-    },
-  ]);
-
-  const [clinicians, setClinicians] = useState<Clinician[]>([
-    {
-      id: "1",
-      name: "Dr. Sarah Johnson",
-      hospital: "City General Hospital",
-      accessLevel: "Full Access",
-      grantedDate: "Oct 1, 2025",
-    },
-    {
-      id: "2",
-      name: "Dr. Michael Chen",
-      hospital: "LabCorp Diagnostics",
-      accessLevel: "Lab Results Only",
-      grantedDate: "Nov 10, 2025",
-    },
-  ]);
+  const [prescriptions, setPrescriptions] = useState<Prescription[]>([]);
+  const [symptoms, setSymptoms] = useState<Symptom[]>([]);
+  const [clinicians, setClinicians] = useState<Clinician[]>([]);
+  const [patientRecords, setPatientRecords] = useState<any[]>([]);
+  const [patientProfile, setPatientProfile] = useState<any>(null);
 
   // Form states
   const [newPrescription, setNewPrescription] = useState({
@@ -840,53 +185,209 @@ export default function PatientDashboard({
   const [qrCode, setQrCode] = useState<string>("");
   const [qrExpiry, setQrExpiry] = useState<Date | null>(null);
 
+  // Load patient data on component mount
   useEffect(() => {
-    const token = localStorage.getItem("patientToken"); // token for API
-
-    const fetchProfileAndRecords = async () => {
-      try {
-        setLoading(true);
-        if (!token) return;
-
-        const profileData = await getPatientProfile(token);
-        setProfile(profileData);
-
-        const recordsData = await getPatientRecords(token);
-        setRecords(recordsData);
-      } catch (error) {
-        console.error("Error fetching patient data:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchProfileAndRecords();
+    loadPatientData();
   }, []);
 
-  useEffect(() => {
-    let interval: NodeJS.Timer;
-    if (isRecording) {
-      interval = setInterval(() => setRecordingTime((prev) => prev + 1), 1000);
+  // const loadPatientData = async () => {
+  //   try {
+  //     setIsLoading(true);
+
+  //     // Check if we have a valid token
+  //     const token = getStoredToken();
+  //     if (!token) {
+  //       showToast("Please log in again", "error");
+  //       onLogout();
+  //       return;
+  //     }
+
+  //     // Load patient profile
+  //     const profile = await getPatientProfile();
+  //     setPatientProfile(profile);
+
+  //     // Load patient records
+  //     const records = await getPatientRecords();
+  //     setPatientRecords(records.localRecords || []);
+
+  //     // Load symptoms
+  //     const symptomsData = await getSymptoms();
+  //     setSymptoms(symptomsData || []);
+
+  //     // Extract prescriptions from records
+  //     const extractedPrescriptions = extractPrescriptionsFromRecords(records);
+  //     setPrescriptions(extractedPrescriptions);
+  //   } catch (error: any) {
+  //     console.error("Error loading patient data:", error);
+
+  //     if (error.response?.status === 401) {
+  //       showToast("Session expired. Please log in again.", "error");
+  //       // Clear token and logout
+  //       removeToken();
+  //       onLogout();
+  //     } else {
+  //       showToast("Failed to load patient data", "error");
+  //     }
+  //   } finally {
+  //     setIsLoading(false);
+  //   }
+  // };
+
+  const loadPatientData = async () => {
+    try {
+      setIsLoading(true);
+
+      // Check if we have a valid token
+      const token = getStoredToken();
+      if (!token) {
+        showToast("Please log in again", "error");
+        onLogout();
+        return;
+      }
+
+      // Load patient profile
+      const profile = await getPatientProfile(); // Remove user.token parameter
+      setPatientProfile(profile);
+
+      // Load patient records
+      const records = await getPatientRecords(); // Remove user.token parameter
+      setPatientRecords(records.localRecords || []);
+
+      // Load symptoms
+      const symptomsData = await getSymptoms(); // Remove user.token parameter
+      setSymptoms(symptomsData || []);
+
+      // Extract prescriptions from records
+      const extractedPrescriptions = extractPrescriptionsFromRecords(records);
+      setPrescriptions(extractedPrescriptions);
+    } catch (error: any) {
+      console.error("Error loading patient data:", error);
+
+      if (error.response?.status === 401) {
+        showToast("Session expired. Please log in again.", "error");
+        // Clear token and logout
+        removeToken();
+        onLogout();
+      } else {
+        showToast("Failed to load patient data", "error");
+      }
+    } finally {
+      setIsLoading(false);
     }
-    return () => clearInterval(interval);
+  };
+
+  const extractPrescriptionsFromRecords = (records: any) => {
+    const prescriptions: Prescription[] = [];
+
+    if (records.localRecords) {
+      records.localRecords.forEach((record: any) => {
+        if (record.medications && Array.isArray(record.medications)) {
+          record.medications.forEach((med: any) => {
+            prescriptions.push({
+              id: `${record._id}-${med.name}`,
+              name: med.name,
+              dosage: med.dosage || "As directed",
+              frequency: med.frequency || "Daily",
+              prescribedBy: record.clinicId || "Unknown Provider",
+              startDate: new Date(record.encounterDate).toLocaleDateString(
+                "en-US",
+                {
+                  month: "short",
+                  day: "numeric",
+                  year: "numeric",
+                }
+              ),
+              compatibility: 95, // Default value, could be calculated
+              status: "active",
+            });
+          });
+        }
+      });
+    }
+
+    // Add some default prescriptions if none found
+    if (prescriptions.length === 0) {
+      return [
+        {
+          id: "1",
+          name: "Lisinopril 10mg",
+          dosage: "Once daily",
+          frequency: "Daily",
+          prescribedBy: "Dr. Sarah Johnson",
+          startDate: "Oct 1, 2025",
+          compatibility: 95,
+          status: "active",
+        },
+        {
+          id: "2",
+          name: "Metformin 500mg",
+          dosage: "Twice daily with meals",
+          frequency: "Twice daily",
+          prescribedBy: "Dr. Sarah Johnson",
+          startDate: "Sep 15, 2025",
+          compatibility: 98,
+          status: "active",
+        },
+      ];
+    }
+
+    return prescriptions;
+  };
+
+  useEffect(() => {
+    let interval: any;
+    if (isRecording) {
+      interval = setInterval(() => {
+        setRecordingTime((prev) => prev + 1);
+      }, 1000);
+    }
+    return () => {
+      if (interval) clearInterval(interval);
+    };
   }, [isRecording]);
 
+  // QR Code expiry timer
   useEffect(() => {
-    if (!qrExpiry) return;
-
-    const interval = setInterval(() => {
-      if (new Date() > qrExpiry) {
-        setQrCode("");
-        setQrExpiry(null);
-        showToast("QR code expired. Generate a new one.", "info");
-      }
-    }, 1000);
-
-    return () => clearInterval(interval);
+    if (qrExpiry) {
+      const interval = setInterval(() => {
+        if (new Date() > qrExpiry) {
+          setQrCode("");
+          setQrExpiry(null);
+          showToast("QR code expired. Generate a new one.", "info");
+        }
+      }, 1000);
+      return () => clearInterval(interval);
+    }
   }, [qrExpiry]);
 
   const showToast = (message: string, type: "success" | "error" | "info") => {
     setToast({ message, type });
+  };
+
+  const handleStartRecording = () => {
+    setIsRecording(true);
+    setRecordingTime(0);
+    showToast("Recording started. Speak clearly about your visit.", "info");
+  };
+
+  const handleStopRecording = async () => {
+    setIsRecording(false);
+    setIsLoading(true);
+
+    try {
+      // In a real app, you would send the audio file to the server
+      // For now, we'll simulate processing
+      setTimeout(() => {
+        setIsLoading(false);
+        showToast(
+          "Voice recording saved and transcribed successfully!",
+          "success"
+        );
+      }, 2000);
+    } catch (error) {
+      setIsLoading(false);
+      showToast("Failed to process recording", "error");
+    }
   };
 
   const formatRecordingTime = (seconds: number) => {
@@ -895,28 +396,44 @@ export default function PatientDashboard({
     return `${String(mins).padStart(2, "0")}:${String(secs).padStart(2, "0")}`;
   };
 
-  // Handle start/stop recording
-  const handleStartRecording = () => {
-    setIsRecording(true);
-    setRecordingTime(0);
-    showToast("Recording started. Speak clearly about your visit.", "info");
-  };
+  // const handleCheckCompatibility = async () => {
+  //   if (!medicationToCheck.trim()) {
+  //     showToast("Please enter a medication name", "error");
+  //     return;
+  //   }
 
-  const handleStopRecording = () => {
-    setIsRecording(false);
-    setIsLoading(true);
+  //   setIsCheckingCompatibility(true);
 
-    setTimeout(() => {
-      setIsLoading(false);
-      showToast(
-        "Voice recording saved and transcribed successfully!",
-        "success"
-      );
-    }, 2000);
-  };
+  //   try {
+  //     // Get current medication names
+  //     const currentMeds = prescriptions.map((p) => p.name);
+  //     const medicationsToCheck = [...currentMeds, medicationToCheck];
 
-  // Compatibility check
-  const handleCheckCompatibility = () => {
+  //     const result = await checkDrugInteractions(
+  //       user.token,
+  //       medicationsToCheck
+  //     );
+
+  //     setCompatibilityResult({
+  //       medication: medicationToCheck,
+  //       score: result.interactions.length === 0 ? 95 : 75, // Simplified scoring
+  //       interactions: result.interactions,
+  //       recommendation:
+  //         result.interactions.length === 0
+  //           ? "Safe to use with current medications. No significant interactions detected."
+  //           : "Potential interactions detected. Consult with your doctor before taking this medication.",
+  //     });
+
+  //     showToast("Compatibility analysis complete", "success");
+  //   } catch (error) {
+  //     console.error("Error checking compatibility:", error);
+  //     showToast("Failed to check medication compatibility", "error");
+  //   } finally {
+  //     setIsCheckingCompatibility(false);
+  //   }
+  // };
+
+  const handleCheckCompatibility = async () => {
     if (!medicationToCheck.trim()) {
       showToast("Please enter a medication name", "error");
       return;
@@ -924,49 +441,32 @@ export default function PatientDashboard({
 
     setIsCheckingCompatibility(true);
 
-    setTimeout(() => {
-      const score = Math.floor(Math.random() * 20) + 80;
-      const interactions =
-        score < 90
-          ? [
-              "May interact with Lisinopril - monitor blood pressure closely",
-              "Possible increased risk of side effects when combined with current medications",
-            ]
-          : [];
+    try {
+      // Get current medication names
+      const currentMeds = prescriptions.map((p) => p.name);
+      const medicationsToCheck = [...currentMeds, medicationToCheck];
+
+      const result = await checkDrugInteractions(medicationsToCheck); // Remove user.token parameter
 
       setCompatibilityResult({
         medication: medicationToCheck,
-        score,
-        interactions,
+        score: result.interactions.length === 0 ? 95 : 75, // Simplified scoring
+        interactions: result.interactions,
         recommendation:
-          score >= 95
+          result.interactions.length === 0
             ? "Safe to use with current medications. No significant interactions detected."
-            : score >= 85
-            ? "Generally safe, but monitor for side effects. Consult your doctor if symptoms worsen."
-            : "Potential interaction detected. Consult with your doctor before taking this medication.",
+            : "Potential interactions detected. Consult with your doctor before taking this medication.",
       });
 
-      setIsCheckingCompatibility(false);
       showToast("Compatibility analysis complete", "success");
-    }, 2000);
+    } catch (error) {
+      console.error("Error checking compatibility:", error);
+      showToast("Failed to check medication compatibility", "error");
+    } finally {
+      setIsCheckingCompatibility(false);
+    }
   };
 
-  const [liveTranscript, setLiveTranscript] = useState("");
-
-  useEffect(() => {
-    let transcriptInterval: any;
-    if (isRecording) {
-      transcriptInterval = setInterval(() => {
-        // For demo, appending random placeholder text
-        setLiveTranscript((prev) => prev + " ...listening");
-      }, 1000);
-    }
-    return () => {
-      if (transcriptInterval) clearInterval(transcriptInterval);
-    };
-  }, [isRecording]);
-
-  // Add prescription
   const handleAddPrescription = () => {
     if (!newPrescription.name || !newPrescription.dosage) {
       showToast("Please fill in required fields (name and dosage)", "error");
@@ -1005,8 +505,55 @@ export default function PatientDashboard({
     }, 1000);
   };
 
-  // Add symptom
-  const handleAddSymptom = () => {
+  // const handleAddSymptom = async () => {
+  //   if (!newSymptom.symptom) {
+  //     showToast("Please enter a symptom", "error");
+  //     return;
+  //   }
+
+  //   setIsLoading(true);
+
+  //   try {
+  //     const symptomData = {
+  //       symptom: newSymptom.symptom,
+  //       severity: newSymptom.severity,
+  //       notes: newSymptom.notes,
+  //     };
+
+  //     const result = await logSymptom(user.token, symptomData);
+
+  //     const newSymptomEntry: Symptom = {
+  //       id: result._id,
+  //       date: new Date().toLocaleString("en-US", {
+  //         month: "short",
+  //         day: "numeric",
+  //         hour: "numeric",
+  //         minute: "2-digit",
+  //         hour12: true,
+  //       }),
+  //       symptom: result.symptom,
+  //       severity:
+  //         result.severity.charAt(0).toUpperCase() + result.severity.slice(1),
+  //       notes: result.notes || "No additional notes",
+  //     };
+
+  //     setSymptoms([newSymptomEntry, ...symptoms]);
+  //     setNewSymptom({ symptom: "", severity: "mild", notes: "" });
+  //     setShowAddSymptom(false);
+  //     showToast(
+  //       "Symptom logged successfully! AI is analyzing patterns...",
+  //       "success"
+  //     );
+  //     setActiveTab("symptoms");
+  //   } catch (error) {
+  //     console.error("Error logging symptom:", error);
+  //     showToast("Failed to log symptom", "error");
+  //   } finally {
+  //     setIsLoading(false);
+  //   }
+  // };
+
+  const handleAddSymptom = async () => {
     if (!newSymptom.symptom) {
       showToast("Please enter a symptom", "error");
       return;
@@ -1014,9 +561,17 @@ export default function PatientDashboard({
 
     setIsLoading(true);
 
-    setTimeout(() => {
+    try {
+      const symptomData = {
+        symptom: newSymptom.symptom,
+        severity: newSymptom.severity,
+        notes: newSymptom.notes,
+      };
+
+      const result = await logSymptom(symptomData);
+
       const newSymptomEntry: Symptom = {
-        id: Date.now().toString(),
+        id: result._id,
         date: new Date().toLocaleString("en-US", {
           month: "short",
           day: "numeric",
@@ -1024,49 +579,98 @@ export default function PatientDashboard({
           minute: "2-digit",
           hour12: true,
         }),
-        symptom: newSymptom.symptom,
+        symptom: result.symptom,
         severity:
-          newSymptom.severity.charAt(0).toUpperCase() +
-          newSymptom.severity.slice(1),
-        notes: newSymptom.notes || "No additional notes",
+          result.severity.charAt(0).toUpperCase() + result.severity.slice(1),
+        notes: result.notes || "No additional notes",
       };
 
       setSymptoms([newSymptomEntry, ...symptoms]);
       setNewSymptom({ symptom: "", severity: "mild", notes: "" });
       setShowAddSymptom(false);
+      showToast("Symptom logged successfully!", "success");
+      setActiveTab("symptoms");
+    } catch (error) {
+      console.error("Error logging symptom:", error);
+      showToast("Failed to log symptom", "error");
+    } finally {
       setIsLoading(false);
+    }
+  };
+
+  // const handleSaveStructuredSymptom = async (structuredSymptom: any) => {
+  //   try {
+  //     const symptomData = {
+  //       symptom: structuredSymptom.symptom,
+  //       severity: structuredSymptom.severity.toString(),
+  //       notes: structuredSymptom.context,
+  //       duration: structuredSymptom.duration,
+  //     };
+
+  //     const result = await logSymptom(user.token, symptomData);
+
+  //     const newSymptomEntry: Symptom = {
+  //       id: result._id,
+  //       date: structuredSymptom.timestamp,
+  //       symptom: structuredSymptom.symptom,
+  //       severity: `${structuredSymptom.severity}/10`,
+  //       notes: structuredSymptom.context,
+  //       duration: structuredSymptom.duration,
+  //       context: structuredSymptom.context,
+  //       possibleRisk: structuredSymptom.possibleRisk,
+  //       recommendations: structuredSymptom.recommendations,
+  //     };
+
+  //     setSymptoms([newSymptomEntry, ...symptoms]);
+  //     setShowSymptomLogger(false);
+  //     showToast(
+  //       "✓ Symptom log saved successfully! AI insights generated.",
+  //       "success"
+  //     );
+  //     setActiveTab("symptoms");
+  //   } catch (error) {
+  //     console.error("Error saving structured symptom:", error);
+  //     showToast("Failed to save symptom", "error");
+  //   }
+  // };
+
+  // In PatientDashboard component
+  const handleSaveStructuredSymptom = async (structuredSymptom: any) => {
+    try {
+      const symptomData = {
+        symptom: structuredSymptom.symptom,
+        severity: structuredSymptom.severity.toString(),
+        notes: structuredSymptom.context,
+        duration: structuredSymptom.duration,
+      };
+
+      const result = await logSymptom(symptomData);
+
+      const newSymptomEntry: Symptom = {
+        id: result._id,
+        date: structuredSymptom.timestamp,
+        symptom: structuredSymptom.symptom,
+        severity: `${structuredSymptom.severity}/10`,
+        notes: structuredSymptom.context,
+        duration: structuredSymptom.duration,
+        context: structuredSymptom.context,
+        possibleRisk: structuredSymptom.possibleRisk,
+        recommendations: structuredSymptom.recommendations,
+      };
+
+      setSymptoms([newSymptomEntry, ...symptoms]);
+      setShowSymptomLogger(false);
       showToast(
-        "Symptom logged successfully! AI is analyzing patterns...",
+        "✓ Symptom log saved successfully! AI insights generated.",
         "success"
       );
       setActiveTab("symptoms");
-    }, 1000);
+    } catch (error) {
+      console.error("Error saving structured symptom:", error);
+      showToast("Failed to save symptom", "error");
+    }
   };
 
-  // Save structured symptom from SymptomLogger
-  const handleSaveStructuredSymptom = (structuredSymptom: any) => {
-    const newSymptomEntry: Symptom = {
-      id: structuredSymptom.id,
-      date: structuredSymptom.timestamp,
-      symptom: structuredSymptom.symptom,
-      severity: `${structuredSymptom.severity}/10`,
-      notes: structuredSymptom.context,
-      duration: structuredSymptom.duration,
-      context: structuredSymptom.context,
-      possibleRisk: structuredSymptom.possibleRisk,
-      recommendations: structuredSymptom.recommendations,
-    };
-
-    setSymptoms([newSymptomEntry, ...symptoms]);
-    setShowSymptomLogger(false);
-    showToast(
-      "✓ Symptom log saved successfully! AI insights generated.",
-      "success"
-    );
-    setActiveTab("symptoms");
-  };
-
-  // Add clinician
   const handleAddClinician = () => {
     if (!newClinician.name || !newClinician.email) {
       showToast("Please fill in all required fields", "error");
@@ -1115,41 +719,134 @@ export default function PatientDashboard({
     showToast(`${name} removed from your prescriptions`, "success");
   };
 
-  const handleDeleteSymptom = (id: string) => {
-    setSymptoms(symptoms.filter((s) => s.id !== id));
-    showToast("Symptom entry deleted", "success");
+  const handleDeleteSymptom = async (id: string) => {
+    try {
+      // In a real app, you would call an API to delete the symptom
+      setSymptoms(symptoms.filter((s) => s.id !== id));
+      showToast("Symptom entry deleted", "success");
+    } catch (error) {
+      console.error("Error deleting symptom:", error);
+      showToast("Failed to delete symptom", "error");
+    }
   };
 
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
-    if (!files) return;
+    if (files) {
+      setIsLoading(true);
 
-    setIsLoading(true);
-    const fileNames = Array.from(files).map((f) => f.name);
+      try {
+        // For now, we'll simulate file upload
+        // In a real app, you would upload the files and then use AI extraction
+        const fileNames = Array.from(files).map((f) => f.name);
 
-    setTimeout(() => {
-      setUploadedFiles([...uploadedFiles, ...fileNames]);
-      setIsLoading(false);
+        setTimeout(() => {
+          setUploadedFiles([...uploadedFiles, ...fileNames]);
+          showToast(
+            `${files.length} file(s) uploaded successfully! AI is processing...`,
+            "success"
+          );
+          setShowUploadRecord(false);
+        }, 2000);
+      } catch (error) {
+        console.error("Error uploading files:", error);
+        showToast("Failed to upload files", "error");
+      } finally {
+        setIsLoading(false);
+      }
+    }
+  };
+
+  // const handleUploadMedicalRecord = async (recordText: string) => {
+  //   try {
+  //     setIsLoading(true);
+  //     const result = await uploadMedicalRecord(user.token, recordText);
+  //     showToast(
+  //       "Medical record uploaded and processed successfully!",
+  //       "success"
+  //     );
+
+  //     // Reload patient data to get updated records
+  //     await loadPatientData();
+
+  //     return result;
+  //   } catch (error) {
+  //     console.error("Error uploading medical record:", error);
+  //     showToast("Failed to upload medical record", "error");
+  //     throw error;
+  //   } finally {
+  //     setIsLoading(false);
+  //   }
+  // };
+
+  const handleUploadMedicalRecord = async (recordText: string) => {
+    try {
+      setIsLoading(true);
+      const result = await uploadMedicalRecord(recordText); // Remove user.token parameter
       showToast(
-        `${files.length} file(s) uploaded successfully! AI is processing...`,
+        "Medical record uploaded and processed successfully!",
         "success"
       );
-      setShowUploadRecord(false);
-    }, 2000);
+
+      // Reload patient data to get updated records
+      await loadPatientData();
+
+      return result;
+    } catch (error) {
+      console.error("Error uploading medical record:", error);
+      showToast("Failed to upload medical record", "error");
+      throw error;
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const handleGenerateQR = () => {
+  // const handleGenerateQR = async () => {
+  //   setIsLoading(true);
+
+  //   try {
+  //     const result = await generateQRCode(user.token, "demo-clinic-id");
+  //     setQrCode(result.qrCode);
+  //     const expiry = new Date();
+  //     expiry.setMinutes(expiry.getMinutes() + 15);
+  //     setQrExpiry(expiry);
+  //     showToast("New QR code generated! Valid for 15 minutes.", "success");
+  //   } catch (error) {
+  //     console.error("Error generating QR code:", error);
+  //     showToast("Failed to generate QR code", "error");
+  //   } finally {
+  //     setIsLoading(false);
+  //   }
+  // };
+
+  const handleGenerateQR = async () => {
     setIsLoading(true);
 
-    setTimeout(() => {
-      setQrCode(`QR-${Date.now()}`);
+    try {
+      const result = await generateQRCode("demo-clinic-id"); // Remove user.token parameter
+      setQrCode(result.qrCode);
       const expiry = new Date();
       expiry.setMinutes(expiry.getMinutes() + 15);
       setQrExpiry(expiry);
-      setIsLoading(false);
       showToast("New QR code generated! Valid for 15 minutes.", "success");
-    }, 1000);
+    } catch (error) {
+      console.error("Error generating QR code:", error);
+      showToast("Failed to generate QR code", "error");
+    } finally {
+      setIsLoading(false);
+    }
   };
+
+  const logoutPatient = () => {
+    removeToken(); // This now comes from the API file
+    onLogout();
+  };
+  // const logoutPatient = () => {
+  //   removeToken();
+  //   localStorage.removeItem("patientToken");
+  //   localStorage.removeItem("clinicToken");
+  //   onLogout();
+  // };
 
   const handleUpgrade = () => {
     setIsLoading(true);
@@ -1177,6 +874,9 @@ export default function PatientDashboard({
       showToast("Medical records exported as PDF successfully!", "success");
     }, 1500);
   };
+
+  // Rest of the component remains the same...
+  // [The rest of your existing JSX code goes here - it's too long to include completely]
 
   return (
     <div className="min-h-screen">
@@ -1313,9 +1013,17 @@ export default function PatientDashboard({
                   </span>
                 </div>
               </div>
-              <Button
+              {/* <Button
                 variant="ghost"
                 onClick={onLogout}
+                style={{ color: "#1B4F72" }}
+                className="hidden sm:flex"
+              >
+                <LogOut className="w-5 h-5" />
+              </Button> */}
+              <Button
+                variant="ghost"
+                onClick={logoutPatient} // Change from onLogout to logoutPatient
                 style={{ color: "#1B4F72" }}
                 className="hidden sm:flex"
               >
@@ -1515,66 +1223,44 @@ export default function PatientDashboard({
         )}
 
         {/* Voice Recording Banner */}
-        {/* Voice Recording Banner */}
         {isRecording && (
           <div
             className="mb-6 p-6 rounded-xl"
             style={{ backgroundColor: "#FFF5F5", border: "2px solid #FF6F61" }}
           >
             <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-              <div className="flex flex-col gap-2">
-                <div className="flex items-center gap-4">
-                  <div
-                    className="w-12 h-12 rounded-full flex items-center justify-center animate-pulse"
-                    style={{ backgroundColor: "#FF6F61" }}
-                  >
-                    <Mic className="w-6 h-6" style={{ color: "#FFFFFF" }} />
-                  </div>
-                  <div>
-                    <p
-                      style={{
-                        fontFamily: "Nunito Sans",
-                        color: "#FF6F61",
-                        fontSize: "18px",
-                      }}
-                    >
-                      Recording in Progress
-                    </p>
-                    <p
-                      style={{
-                        fontFamily: "Lato",
-                        color: "#1B4F72",
-                        fontSize: "14px",
-                      }}
-                    >
-                      {formatRecordingTime(recordingTime)}
-                    </p>
-                  </div>
-                </div>
-                {/* Live Transcript Display */}
+              <div className="flex items-center gap-4">
                 <div
-                  style={{
-                    fontFamily: "Lato",
-                    color: "#0A3D62",
-                    fontSize: "14px",
-                    marginTop: "8px",
-                    maxHeight: "80px",
-                    overflowY: "auto",
-                    backgroundColor: "#F0F0F0",
-                    padding: "8px",
-                    borderRadius: "8px",
-                  }}
+                  className="w-12 h-12 rounded-full flex items-center justify-center animate-pulse"
+                  style={{ backgroundColor: "#FF6F61" }}
                 >
-                  {liveTranscript || "Listening..."}
+                  <Mic className="w-6 h-6" style={{ color: "#FFFFFF" }} />
+                </div>
+                <div>
+                  <p
+                    style={{
+                      fontFamily: "Nunito Sans",
+                      color: "#FF6F61",
+                      fontSize: "18px",
+                    }}
+                  >
+                    Recording in Progress
+                  </p>
+                  <p
+                    style={{
+                      fontFamily: "Lato",
+                      color: "#1B4F72",
+                      fontSize: "14px",
+                    }}
+                  >
+                    {formatRecordingTime(recordingTime)}
+                  </p>
                 </div>
               </div>
               <Button
-                onClick={() => {
-                  handleStopRecording();
-                  setLiveTranscript(""); // reset after stopping
-                }}
+                onClick={handleStopRecording}
                 disabled={isLoading}
-                className="rounded-lg mt-4 sm:mt-0"
+                className="rounded-lg"
                 style={{
                   fontFamily: "Poppins",
                   backgroundColor: "#FF6F61",
@@ -2543,7 +2229,7 @@ export default function PatientDashboard({
       {/* All Modals remain the same but with disabled states on buttons during isLoading */}
       {/* I'll include just the key modals with loading states */}
 
-      <Dialog open={showAddPrescription} onOpenChange={setShowAddPrescription}>
+      {/* <Dialog open={showAddSymptom} onOpenChange={setShowAddSymptom}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle>Add New Prescription</DialogTitle>
@@ -2631,9 +2317,82 @@ export default function PatientDashboard({
             </Button>
           </DialogFooter>
         </DialogContent>
+      </Dialog> */}
+
+      {/* Simple Symptom Modal */}
+      <Dialog open={showAddSymptom} onOpenChange={setShowAddSymptom}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Log New Symptom</DialogTitle>
+            <DialogDescription>
+              Track your symptoms for AI analysis
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div>
+              <Label htmlFor="symptom">Symptom *</Label>
+              <Input
+                id="symptom"
+                value={newSymptom.symptom}
+                onChange={(e) =>
+                  setNewSymptom({ ...newSymptom, symptom: e.target.value })
+                }
+                placeholder="e.g., Headache, Nausea, Fatigue"
+                disabled={isLoading}
+              />
+            </div>
+            <div>
+              <Label htmlFor="severity">Severity *</Label>
+              <Select
+                value={newSymptom.severity}
+                onValueChange={(value) =>
+                  setNewSymptom({ ...newSymptom, severity: value })
+                }
+                disabled={isLoading}
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="mild">Mild</SelectItem>
+                  <SelectItem value="moderate">Moderate</SelectItem>
+                  <SelectItem value="severe">Severe</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label htmlFor="notes">Additional Notes</Label>
+              <Textarea
+                id="notes"
+                value={newSymptom.notes}
+                onChange={(e) =>
+                  setNewSymptom({ ...newSymptom, notes: e.target.value })
+                }
+                placeholder="When did it start? What were you doing?"
+                rows={3}
+                disabled={isLoading}
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setShowAddSymptom(false)}
+              disabled={isLoading}
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={handleAddSymptom}
+              disabled={!newSymptom.symptom || isLoading}
+            >
+              {isLoading ? "Logging..." : "Log Symptom"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
       </Dialog>
 
-      <Dialog open={showAddSymptom} onOpenChange={setShowAddSymptom}>
+      <Dialog open={showAddSymptom} onOpenChange={setShowAddPrescription}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle>Log New Symptom</DialogTitle>

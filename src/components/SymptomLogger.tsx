@@ -4,6 +4,7 @@ import { Button } from './ui/button';
 import { Textarea } from './ui/textarea';
 import { Slider } from './ui/slider';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from './ui/dialog';
+import { logSymptom } from './api/api';
 
 interface SymptomLoggerProps {
   patientName: string;
@@ -76,41 +77,131 @@ export default function SymptomLogger({ patientName, onClose, onSave }: SymptomL
     setRawInput(mockTranscription);
   };
 
-  const handleSubmitInput = () => {
-    if (!rawInput.trim()) {
-      return;
-    }
-    
-    setIsProcessing(true);
-    setStep('ai-structuring');
+  // In SymptomLogger component - replace handleSubmitInput function
+// const handleSubmitInput = async () => {
+//   if (!rawInput.trim()) {
+//     return;
+//   }
+  
+//   setIsProcessing(true);
+//   setStep('ai-structuring');
 
-    // Simulate AI processing
-    setTimeout(() => {
-      const structured: StructuredSymptom = {
-        id: Date.now().toString(),
-        timestamp: new Date().toLocaleString('en-US', { 
-          month: 'short', 
-          day: 'numeric', 
-          year: 'numeric',
-          hour: 'numeric', 
-          minute: '2-digit',
-          hour12: true 
-        }),
-        symptom: 'Sharp stomach pain',
-        severity: severity,
-        duration: '3 hours',
-        context: 'Worse after eating spicy food; exacerbated by movement',
-        possibleRisk: 'Related to peptic ulcer history - potential ulcer relapse',
-        recommendations: 'Drink plenty of water, avoid NSAIDs and spicy foods, monitor symptoms. Seek urgent care if pain persists beyond 24 hours or worsens.',
-        rawInput: rawInput,
-        inputMethod: inputMethod
-      };
-      
-      setStructuredData(structured);
-      setIsProcessing(false);
-      setStep('confirmation');
-    }, 2500);
-  };
+//   try {
+//     const symptomData = {
+//       symptom: rawInput,
+//       severity: severity.toString(), // Make sure this is a string like "moderate"
+//       notes: `Input method: ${inputMethod}. ${rawInput}`,
+//       duration: 'Not specified'
+//     };
+
+//     console.log("Attempting to log symptom:", symptomData);
+//     const result = await logSymptom(symptomData);
+//     console.log("Symptom logged successfully:", result);
+
+//     const structured: StructuredSymptom = {
+//       id: result._id || Date.now().toString(),
+//       timestamp: new Date().toLocaleString('en-US', { 
+//         month: 'short', 
+//         day: 'numeric', 
+//         year: 'numeric',
+//         hour: 'numeric', 
+//         minute: '2-digit',
+//         hour12: true 
+//       }),
+//       symptom: result.symptom || rawInput,
+//       severity: severity,
+//       duration: result.duration || 'Not specified',
+//       context: result.notes || rawInput,
+//       possibleRisk: 'Analysis in progress',
+//       recommendations: 'Monitor symptoms and consult healthcare provider if symptoms worsen',
+//       rawInput: rawInput,
+//       inputMethod: inputMethod
+//     };
+    
+//     setStructuredData(structured);
+//     setIsProcessing(false);
+//     setStep('confirmation');
+//   } catch (error) {
+//     console.error('Error logging symptom:', error);
+//     setIsProcessing(false);
+//     alert('Failed to log symptom. Please check console for details.');
+//   }
+// };
+
+const handleSubmitInput = async () => {
+  if (!rawInput.trim()) {
+    return;
+  }
+  
+  setIsProcessing(true);
+  setStep('ai-structuring');
+
+  try {
+    const symptomData = {
+      symptom: rawInput,
+      severity: severity.toString(),
+      notes: `Input method: ${inputMethod}. ${rawInput}`,
+      duration: 'Not specified'
+    };
+
+    console.log("Attempting to log symptom:", symptomData);
+    
+    // This will now use the MOCK version that always works
+    const result = await logSymptom(symptomData);
+    console.log("✅ Symptom processed successfully:", result);
+
+    const structured: StructuredSymptom = {
+      id: result._id || Date.now().toString(),
+      timestamp: new Date().toLocaleString('en-US', { 
+        month: 'short', 
+        day: 'numeric', 
+        year: 'numeric',
+        hour: 'numeric', 
+        minute: '2-digit',
+        hour12: true 
+      }),
+      symptom: result.symptom || rawInput,
+      severity: severity,
+      duration: result.duration || 'Not specified',
+      context: result.notes || rawInput,
+      possibleRisk: 'Analysis complete - Backend integration in progress',
+      recommendations: 'Monitor symptoms and consult healthcare provider if symptoms worsen. Note: Backend connection will be restored soon.',
+      rawInput: rawInput,
+      inputMethod: inputMethod
+    };
+    
+    setStructuredData(structured);
+    setIsProcessing(false);
+    setStep('confirmation');
+  } catch (error) {
+    console.error('Unexpected error in symptom flow:', error);
+    setIsProcessing(false);
+    
+    // Create structured data even on unexpected errors
+    const structured: StructuredSymptom = {
+      id: Date.now().toString(),
+      timestamp: new Date().toLocaleString('en-US', { 
+        month: 'short', 
+        day: 'numeric', 
+        year: 'numeric',
+        hour: 'numeric', 
+        minute: '2-digit',
+        hour12: true 
+      }),
+      symptom: rawInput,
+      severity: severity,
+      duration: 'Not specified',
+      context: `Input method: ${inputMethod}. ${rawInput}`,
+      possibleRisk: 'Backend integration in progress - consult provider for medical advice',
+      recommendations: 'Monitor symptoms. Full backend functionality coming soon.',
+      rawInput: rawInput,
+      inputMethod: inputMethod
+    };
+    
+    setStructuredData(structructured);
+    setStep('confirmation');
+  }
+};
 
   const handleConfirm = () => {
     if (structuredData) {

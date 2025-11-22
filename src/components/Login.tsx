@@ -5,6 +5,7 @@ import { Input } from "./ui/input";
 import { Label } from "./ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
 import axios from "axios";
+import { storeToken } from "./api/api";
 import logo from "figma:asset/eb6d15466f76858f9aa3d9535154b129bc9f0c63.png";
 
 interface LoginProps {
@@ -43,7 +44,7 @@ export default function Login({
       const body = {
         email: formData.email,
         password: formData.password,
-        userType: activeTab, // either 'patient' or 'clinic'
+        userType: activeTab,
       };
 
       const res = await axios.post(
@@ -58,9 +59,22 @@ export default function Login({
 
       console.log(`${activeTab} logged in:`, res.data);
 
-      setToken(res.data.token);
-      // Proceed to next step in your app
-      onComplete({ email: formData.email, userType: activeTab });
+      // Store the token properly
+      const token = res.data.data.token;
+      const userType = activeTab;
+
+      // Use the storeToken function from api.js
+      storeToken(token, userType);
+
+      // Also store in localStorage as backup
+      localStorage.setItem(`${userType}Token`, token);
+
+      // Proceed to next step
+      onComplete({
+        email: formData.email,
+        userType: activeTab,
+        token: token, // Pass the token to parent
+      });
     } catch (err: any) {
       console.error("Login error:", err.response?.data || err.message);
       alert("Login failed. Check your email/password and try again.");
